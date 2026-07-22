@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Progres SE2026</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --primary: #2563eb;
+      --text: #1e293b;
+      --border: #cbd5e1;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .grid-input {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+    }
+
+    .result-section {
+      margin-top: 24px;
+      border-top: 2px dashed var(--border);
+      padding-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    th {
+      background-color: #f1f5f9;
+    }
+
+    .stat-card {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary);
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .stat-title {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Kalkulator Progres SE2026</h2>
+
+  <div class="grid-input">
+    <div class="input-group">
+      <label>Target</label>
+      <input type="number" id="target" value="459">
+    </div>
+    <div class="input-group">
+      <label>Open</label>
+      <input type="number" id="open" value="239">
+    </div>
+    <div class="input-group">
+      <label>Draft</label>
+      <input type="number" id="draft" value="34">
+    </div>
+    <div class="input-group">
+      <label>Submit</label>
+      <input type="number" id="submit" value="8">
+    </div>
+    <div class="input-group">
+      <label>Approve</label>
+      <input type="number" id="approve" value="208">
+    </div>
+    <div class="input-group">
+      <label>Reject</label>
+      <input type="number" id="reject" value="4">
+    </div>
+  </div>
+
+  <button onclick="hitungProgres()">Hitung Progres</button>
+
+  <div class="result-section" id="hasil" style="display: none;">
+    <h3>Ringkasan Persentase</h3>
+    
+    <div class="stat-card">
+      <div class="stat-title">PROSENTASE DENGAN DRAFT (D+S+A+R / Target)</div>
+      <div class="stat-value" id="pctDenganDraft">0%</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">PROSENTASE TANPA DRAFT (S+A+R / Target)</div>
+      <div class="stat-value" id="pctTanpaDraft">0%</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">PROSENTASE APPROVE / REJECTED (Approve+Reject / Target)</div>
+      <div class="stat-value" id="pctApproveReject">0%</div>
+    </div>
+
+    <h3>Rincian Akumulasi Berkas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>D + S + A + R</th>
+          <th>S + A + R</th>
+          <th>Approve + Reject</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="dsar">0</td>
+          <td id="sar">0</td>
+          <td id="ar">0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function hitungProgres() {
+    // Ambil Nilai Input
+    const target = parseFloat(document.getElementById('target').value) || 0;
+    const openVal = parseFloat(document.getElementById('open').value) || 0;
+    const draftVal = parseFloat(document.getElementById('draft').value) || 0;
+    const submitVal = parseFloat(document.getElementById('submit').value) || 0;
+    const approveVal = parseFloat(document.getElementById('approve').value) || 0;
+    const rejectVal = parseFloat(document.getElementById('reject').value) || 0;
+
+    if (target <= 0) {
+      alert("Target harus lebih dari 0!");
+      return;
+    }
+
+    // Perhitungan Akumulasi
+    const dsar = draftVal + submitVal + approveVal + rejectVal;
+    const sar = submitVal + approveVal + rejectVal;
+    const ar = approveVal + rejectVal;
+
+    // Perhitungan Persentase
+    const pctD = ((dsar / target) * 100).toFixed(2);
+    const pctTanpaD = ((sar / target) * 100).toFixed(2);
+    const pctAppRej = ((ar / target) * 100).toFixed(2);
+
+    // Tampilkan Hasil
+    document.getElementById('dsar').innerText = dsar;
+    document.getElementById('sar').innerText = sar;
+    document.getElementById('ar').innerText = ar;
+
+    document.getElementById('pctDenganDraft').innerText = pctD.replace('.', ',') + '%';
+    document.getElementById('pctTanpaDraft').innerText = pctTanpaD.replace('.', ',') + '%';
+    document.getElementById('pctApproveReject').innerText = pctAppRej.replace('.', ',') + '%';
+
+    document.getElementById('hasil').style.display = 'block';
+  }
+
+  // Hitung otomatis saat pertama kali dibuka
+  window.onload = hitungProgres;
+</script>
+
+</body>
+</html>
